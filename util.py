@@ -26,6 +26,9 @@ class Register(str, Enum):
     R14 = "r14"
     R15 = "r15"
 
+    def __str__(self):
+        return self.name
+
 
 SP = Register.R15
 DR = Register.R14

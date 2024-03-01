@@ -249,6 +249,17 @@ class ControlUnit:
         self.dataPath.latch_reg(IP, self.dataPath.regs[IP] + 1)
         self.tick()
 
+    def __repr__(self):
+        regs_str = ""
+        for reg, value in self.dataPath.regs.items():
+            regs_str += f"({reg} = {value}) "
+        state_repr = f"TICK {self.tick_counter} REGS: {regs_str.strip()}"
+        instr = self.dataPath.code_mem[self.dataPath.regs[IP]]
+        opcode = instr.opcode
+        instr_repr = str(opcode)
+        instr_repr += f" {instr.args}"
+        return f"{state_repr} \t{instr_repr}"
+
 
 def simulation(start: int, code: dict[int, Instruction], data: dict[int, int], input_tokens: list[int], limit: int):
     ports = {
@@ -259,11 +270,13 @@ def simulation(start: int, code: dict[int, Instruction], data: dict[int, int], i
     dp = DataPath(start, code, data)
     cu = ControlUnit(dp, ports)
 
+    logging.debug("%s", cu)
     instr_counter = 0
     try:
         while instr_counter < limit:
             cu.decode_and_execute_instruction()
             instr_counter += 1
+            logging.debug("%s", cu)
     except EOFError:
         logging.error("Input buffer is empty!")
     except StopIteration:

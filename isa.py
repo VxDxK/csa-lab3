@@ -21,6 +21,9 @@ class Opcode(str, Enum):
     OUT = "out"
     NOP = "nop"
 
+    def __str__(self):
+        return self.name
+
 
 class AddressMode(Enum):
     pass
