@@ -2,13 +2,13 @@ import re
 
 
 def remove_extra_spaces(line: str) -> str:
-    line = line.replace("' '", str(ord(' ')))
-    return re.sub(r'\s+', ' ', line)
+    line = line.replace("' '", str(ord(" ")))
+    return re.sub(r"\s+", " ", line)
 
 
 def remove_commas(line: str) -> str:
-    line = line.replace("','", str(ord(',')))
-    return line.replace(',', ' ')
+    line = line.replace("','", str(ord(",")))
+    return line.replace(",", " ")
 
 
 def preprocessing(asm_text: str) -> str:
@@ -17,5 +17,5 @@ def preprocessing(asm_text: str) -> str:
     remove_empty_lines = filter(bool, strip_lines)
     removed_commas = map(remove_commas, remove_empty_lines)
     remove_spaces = map(remove_extra_spaces, removed_commas)
-    joined: str = '\n'.join(remove_spaces)
+    joined: str = "\n".join(remove_spaces)
     return joined

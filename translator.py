@@ -18,15 +18,15 @@ def transform_data_into_structure(data: str) -> (dict[int, int], dict[str, str])
     variables: dict[str, int] = {}
     address_counter = 0
 
-    for line in data.split('\n'):
+    for line in data.split("\n"):
         line = line.strip()
-        var_description = line.split(':')
-        assert len(var_description) == 2, 'Incorrect assignment'
+        var_description = line.split(":")
+        assert len(var_description) == 2, "Incorrect assignment"
         name, value = var_description[0], var_description[1].strip()
-        assert name[0][-1] != ' ', 'Spaces after variable name are not allowed, add ":"'
-        assert name not in variables, 'Variable already defined.'
+        assert name[0][-1] != " ", 'Spaces after variable name are not allowed, add ":"'
+        assert name not in variables, "Variable already defined."
 
-        if value[0] == "\"":
+        if value[0] == '"':
             ascii_values = [ord(char) for char in value[1:-1]]
             ascii_values.append(0)
             variables[name] = address_counter
@@ -41,23 +41,24 @@ def transform_data_into_structure(data: str) -> (dict[int, int], dict[str, str])
     return data_mem, variables
 
 
-def transform_text_into_structure(text: str, data_mem: dict[int, int], variables: dict['str', int]) -> (
-        int, dict[int, Instruction]):
-    assert (text.find('.start:') != -1), '.start label not found'
+def transform_text_into_structure(
+    text: str, data_mem: dict[int, int], variables: dict["str", int]
+) -> (int, dict[int, Instruction]):
+    assert text.find(".start:") != -1, ".start label not found"
     labels: dict[str, int] = {}
     start_address: int = -1
     address_counter: int = 0
     command_mem: dict[int, Instruction] = {}
 
     # Label handling
-    for instr in text.split('\n'):
-        decoding = instr.split(' ')
-        if decoding[0][0] == '.':
+    for instr in text.split("\n"):
+        decoding = instr.split(" ")
+        if decoding[0][0] == ".":
             current_label = decoding[0]
-            assert len(decoding) == 1, 'Error parsing label.'
-            assert current_label[-1] == ':' and current_label.find(':'), 'Label format error, excepted ":" mark'
+            assert len(decoding) == 1, "Error parsing label."
+            assert current_label[-1] == ":" and current_label.find(":"), 'Label format error, excepted ":" mark'
             current_label = decoding[0][1:-1]
-            if current_label == 'start':
+            if current_label == "start":
                 start_address = address_counter
             labels[current_label] = address_counter
         else:
@@ -66,70 +67,74 @@ def transform_text_into_structure(text: str, data_mem: dict[int, int], variables
     address_counter = 0
 
     # Instruction handling
-    for instr in text.split('\n'):
-        decoding = instr.split(' ')
-        if decoding[0][0] != '.':
-            assert Opcode(decoding[0].lower()) is not None, 'No such opcode'
+    for instr in text.split("\n"):
+        decoding = instr.split(" ")
+        if decoding[0][0] != ".":
+            assert Opcode(decoding[0].lower()) is not None, "No such opcode"
             cur_opcode = Opcode(decoding[0].lower())
             current_instruction = None
             command_arguments = decoding[1:]
 
             if cur_opcode in [Opcode.HLT, Opcode.NOP]:
-                assert len(command_arguments) == 0, 'HLT/NOP should not have arguments'
+                assert len(command_arguments) == 0, "HLT/NOP should not have arguments"
                 current_instruction = Instruction(cur_opcode)
 
             if cur_opcode in [Opcode.JE, Opcode.JUMP, Opcode.JG]:
-                assert len(command_arguments) == 1, 'branch instruction should have 1 argument - label'
-                assert labels[command_arguments[0][1:]] is not None, 'No such label'
+                assert len(command_arguments) == 1, "branch instruction should have 1 argument - label"
+                assert labels[command_arguments[0][1:]] is not None, "No such label"
                 current_instruction = Instruction(cur_opcode, [str(labels[command_arguments[0][1:]])])
 
             if cur_opcode == Opcode.MOV:
-                assert len(command_arguments) == 2, 'MOV should have arguments two arguments'
-                assert is_register(command_arguments[0]), 'MOV first argument should be register'
+                assert len(command_arguments) == 2, "MOV should have arguments two arguments"
+                assert is_register(command_arguments[0]), "MOV first argument should be register"
                 if is_register(command_arguments[1]):
                     current_instruction = Instruction(cur_opcode, command_arguments)
                 elif command_arguments[1].isdigit():
                     current_instruction = Instruction(cur_opcode, command_arguments)
                 elif variables[command_arguments[1]] is not None:
-                    current_instruction = Instruction(cur_opcode,
-                                                      [command_arguments[0], str(variables[command_arguments[1]])])
+                    current_instruction = Instruction(
+                        cur_opcode, [command_arguments[0], str(variables[command_arguments[1]])]
+                    )
                 else:
-                    raise Exception('MOV second argument can be: register, int, variable')
+                    raise Exception("MOV second argument can be: register, int, variable")
 
             if cur_opcode in [Opcode.INC, Opcode.DEC, Opcode.NEGR]:
-                assert len(command_arguments) == 1, 'INC/DEC/NEG must have only one argument - register'
-                assert is_register(command_arguments[0]), 'INC/DEC/NEG first argument should be register'
+                assert len(command_arguments) == 1, "INC/DEC/NEG must have only one argument - register"
+                assert is_register(command_arguments[0]), "INC/DEC/NEG first argument should be register"
                 current_instruction = Instruction(cur_opcode, command_arguments)
 
             if cur_opcode in [Opcode.ADD, Opcode.MOD, Opcode.DIV, Opcode.CMP]:
-                assert len(command_arguments) == 2, 'ADD/MOD/DIV/CMP should have two registers as args'
+                assert len(command_arguments) == 2, "ADD/MOD/DIV/CMP should have two registers as args"
                 assert is_register(command_arguments[0]) and is_register(
-                    command_arguments[1]), 'ADD/MOD/DIV/CMP args is registers'
+                    command_arguments[1]
+                ), "ADD/MOD/DIV/CMP args is registers"
                 current_instruction = Instruction(cur_opcode, command_arguments)
 
             if cur_opcode == Opcode.LD:
-                assert len(command_arguments) == 2, 'LD must have 2 arguments'
+                assert len(command_arguments) == 2, "LD must have 2 arguments"
                 assert is_register(command_arguments[0]) and is_register(
-                    command_arguments[1][1:-1]), 'Not registers in arguments'
+                    command_arguments[1][1:-1]
+                ), "Not registers in arguments"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0], command_arguments[1][1:-1]])
 
             if cur_opcode == Opcode.ST:
-                assert len(command_arguments) == 2, 'ST must have 2 arguments'
+                assert len(command_arguments) == 2, "ST must have 2 arguments"
                 assert is_register(command_arguments[0][1:-1]) and is_register(
-                    command_arguments[1]), 'Not registers in arguments'
+                    command_arguments[1]
+                ), "Not registers in arguments"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0][1:-1], command_arguments[1]])
 
             if cur_opcode == Opcode.IN:
-                assert len(command_arguments) == 2, 'IN must have 2 arguments'
-                assert is_register(command_arguments[0]) and command_arguments[1].isdigit(), 'IN arg mismatch'
+                assert len(command_arguments) == 2, "IN must have 2 arguments"
+                assert is_register(command_arguments[0]) and command_arguments[1].isdigit(), "IN arg mismatch"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0], command_arguments[1]])
 
             if cur_opcode == Opcode.OUT:
-                assert len(command_arguments) == 2, 'OUT must have 2 arguments'
-                assert is_register(command_arguments[1]) and command_arguments[0].isdigit(), 'OUT arg mismatch'
+                assert len(command_arguments) == 2, "OUT must have 2 arguments"
+                assert is_register(command_arguments[1]) and command_arguments[0].isdigit(), "OUT arg mismatch"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0], command_arguments[1]])
 
-            assert current_instruction is not None, 'Instruction parsing error'
+            assert current_instruction is not None, "Instruction parsing error"
             command_mem[address_counter] = current_instruction
             address_counter += 1
 
@@ -141,15 +146,15 @@ def perform_translator(source: str) -> dict:
     data_mem: dict[int, int] = {}
     variables = {}
 
-    text_index = code.find('section .text')
+    text_index = code.find("section .text")
 
-    assert text_index != -1, 'No .text section'
-    text_start, text_stop = text_index + len('section .text') + 1, None
-    data_index = code.find('section .data')
+    assert text_index != -1, "No .text section"
+    text_start, text_stop = text_index + len("section .text") + 1, None
+    data_index = code.find("section .data")
     if data_index == -1:
         text_stop = len(code)
     else:
-        data_start, data_stop = data_index + len('section .data') + 1, None
+        data_start, data_stop = data_index + len("section .data") + 1, None
         if data_index < text_index:
             data_stop = text_index - 1
             text_stop = len(code)
@@ -174,10 +179,10 @@ def main(args):
     with open(args[1], "w", encoding="utf-8") as out_file:
         json.dump(result, out_file, indent=4, default=lambda o: o.__dict__)
 
-    loc = len(code.split('\n'))
+    loc = len(code.split("\n"))
     print(f"source LoC: {loc} instr: {len(result['code_mem'])}")
 
 
-if __name__ == '__main__':
-    sys.path.append('')
+if __name__ == "__main__":
+    sys.path.append("")
     main(sys.argv[1:])

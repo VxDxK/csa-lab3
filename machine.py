@@ -71,7 +71,7 @@ class IO:
         self.output += chr(value)
 
 
-MEM_SIZE = 2 ** 9
+MEM_SIZE = 2**9
 
 
 class DataPath:
@@ -158,14 +158,17 @@ class ControlUnit:
 
     def bin_arithmetic(self, instr: Instruction):
         res: int = self.dataPath.calc(
-            instr.opcode, self.dataPath.load_reg(Register(instr.args[0])),
-            self.dataPath.load_reg(Register(instr.args[1])))
+            instr.opcode,
+            self.dataPath.load_reg(Register(instr.args[0])),
+            self.dataPath.load_reg(Register(instr.args[1])),
+        )
         self.dataPath.latch_reg(Register(instr.args[0]), res)
         self.tick()
 
     def un_arithmetic(self, instr: Instruction):
-        res: int = self.dataPath.calc(instr.opcode, self.dataPath.load_reg(Register(instr.args[0])),
-                                      self.dataPath.getR0())
+        res: int = self.dataPath.calc(
+            instr.opcode, self.dataPath.load_reg(Register(instr.args[0])), self.dataPath.getR0()
+        )
         self.dataPath.latch_reg(Register(instr.args[0]), res)
         self.tick()
 
@@ -174,8 +177,7 @@ class ControlUnit:
             reg_from_data: int = int(instr.args[1])
         else:
             reg_from: Register = Register(instr.args[1])
-            reg_from_data: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[reg_from],
-                                                    self.dataPath.getR0())
+            reg_from_data: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[reg_from], self.dataPath.getR0())
         self.tick()
         reg_to: Register = Register(instr.args[0])
         self.dataPath.latch_reg(reg_to, reg_from_data)
@@ -262,11 +264,7 @@ class ControlUnit:
 
 
 def simulation(start: int, code: dict[int, Instruction], data: dict[int, int], input_tokens: list[int], limit: int):
-    ports = {
-        0: IO(input_tokens),
-        1: IO([]),
-        2: IO([])
-    }
+    ports = {0: IO(input_tokens), 1: IO([]), 2: IO([])}
     dp = DataPath(start, code, data)
     cu = ControlUnit(dp, ports)
 
@@ -295,7 +293,7 @@ def main(code_file, input_file=None):
     tmp_code_mem: dict[str, str] = code_dict["code_mem"]
     code_mem: dict[int, Instruction] = {}
     for k, v in tmp_code_mem.items():
-        code_mem[int(k)] = Instruction(Opcode(v['opcode']), v['args'])
+        code_mem[int(k)] = Instruction(Opcode(v["opcode"]), v["args"])
 
     if input_file is None:
         input_token = [0]
