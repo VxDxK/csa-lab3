@@ -1,0 +1,11 @@
+section .text
+.start:
+    MOV r2, 0
+.read:
+    IN r1, 0
+    CMP r1, r2
+    JE .exit
+    OUT 1, r1
+    JMP .read
+.exit:
+    HLT

@@ -1,0 +1,49 @@
+section .text
+.start:
+    MOV r1, 0
+    MOV r3, 3
+    MOV r5, 5
+    MOV r2, 1
+    MOV r10, 0
+    MOV r11, 1000
+.loop:
+    MOV r6, r2
+    MOD r6, r3
+    CMP r6, r10
+    JE .add
+.next:
+    MOV r6, r2
+    MOD r6, r5
+    CMP r6, r10
+    JE .add
+.inc:
+    INC r2
+    CMP r2, r11
+    JE .exit
+    JMP .loop
+.add:
+    ADD r1, r2
+    JMP .inc
+.exit:
+    MOV r11, 10
+    MOV r12, 48
+    DEC r15
+.stack_loop:
+    MOV r6, r1
+    MOD r6, r11
+    DIV r1, r11
+    ADD r6, r12
+    ST [r15], r6
+    CMP r1, r10
+    JE .print
+    DEC r15
+    JMP .stack_loop
+.print:
+    LD r1, [r15]
+    CMP r1, r10
+    JE .hlt
+    OUT 1, r1
+    INC r15
+    JMP .print
+.hlt:
+    HLT

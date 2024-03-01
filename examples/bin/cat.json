@@ -1,0 +1,50 @@
+{
+    "data_mem": {},
+    "start": 0,
+    "code_mem": {
+        "0": {
+            "opcode": "mov",
+            "args": [
+                "r2",
+                "0"
+            ]
+        },
+        "1": {
+            "opcode": "in",
+            "args": [
+                "r1",
+                "0"
+            ]
+        },
+        "2": {
+            "opcode": "cmp",
+            "args": [
+                "r1",
+                "r2"
+            ]
+        },
+        "3": {
+            "opcode": "je",
+            "args": [
+                "6"
+            ]
+        },
+        "4": {
+            "opcode": "out",
+            "args": [
+                "1",
+                "r1"
+            ]
+        },
+        "5": {
+            "opcode": "jmp",
+            "args": [
+                "1"
+            ]
+        },
+        "6": {
+            "opcode": "hlt",
+            "args": []
+        }
+    }
+}

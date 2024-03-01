@@ -1,0 +1,15 @@
+section .data
+    hello_str: "hello, world!"
+section .text
+.start:
+    MOV r2, 0
+    MOV r1, hello_str
+.reload:
+    LD r3, [r1]
+    CMP r2, r3
+    JE .exit
+    OUT 1, r3
+    INC r1
+    JMP .reload
+.exit:
+    HLT
