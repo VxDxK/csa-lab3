@@ -4,13 +4,10 @@ from __future__ import annotations
 
 import json
 import sys
-from util import *
-from isa import *
-from pathlib import Path
-import re
-import sys
+
+from isa import Instruction, Opcode
 from preprocessor import preprocessing
-from util import *
+from util import is_register
 
 
 def transform_data_into_structure(data: str) -> (dict[int, int], dict[str, str]):
@@ -42,7 +39,7 @@ def transform_data_into_structure(data: str) -> (dict[int, int], dict[str, str])
 
 
 def transform_text_into_structure(
-    text: str, data_mem: dict[int, int], variables: dict["str", int]
+    text: str, data_mem: dict[int, int], variables: dict[str, int]
 ) -> (int, dict[int, Instruction]):
     assert text.find(".start:") != -1, ".start label not found"
     labels: dict[str, int] = {}
@@ -56,7 +53,8 @@ def transform_text_into_structure(
         if decoding[0][0] == ".":
             current_label = decoding[0]
             assert len(decoding) == 1, "Error parsing label."
-            assert current_label[-1] == ":" and current_label.find(":"), 'Label format error, excepted ":" mark'
+            assert current_label[-1] == ":", 'Label format error, excepted ":" mark'
+            assert current_label.find(":"), 'Label format error, excepted ":" mark'
             current_label = decoding[0][1:-1]
             if current_label == "start":
                 start_address = address_counter
@@ -105,33 +103,32 @@ def transform_text_into_structure(
 
             if cur_opcode in [Opcode.ADD, Opcode.MOD, Opcode.DIV, Opcode.CMP]:
                 assert len(command_arguments) == 2, "ADD/MOD/DIV/CMP should have two registers as args"
-                assert is_register(command_arguments[0]) and is_register(
-                    command_arguments[1]
-                ), "ADD/MOD/DIV/CMP args is registers"
+                assert is_register(command_arguments[0]), "ADD/MOD/DIV/CMP args is registers"
+                assert is_register(command_arguments[1]), "ADD/MOD/DIV/CMP args is registers"
                 current_instruction = Instruction(cur_opcode, command_arguments)
 
             if cur_opcode == Opcode.LD:
                 assert len(command_arguments) == 2, "LD must have 2 arguments"
-                assert is_register(command_arguments[0]) and is_register(
-                    command_arguments[1][1:-1]
-                ), "Not registers in arguments"
+                assert is_register(command_arguments[0]), "Not registers in arguments"
+                assert is_register(command_arguments[1][1:-1]), "Not registers in arguments"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0], command_arguments[1][1:-1]])
 
             if cur_opcode == Opcode.ST:
                 assert len(command_arguments) == 2, "ST must have 2 arguments"
-                assert is_register(command_arguments[0][1:-1]) and is_register(
-                    command_arguments[1]
-                ), "Not registers in arguments"
+                assert is_register(command_arguments[0][1:-1]), "Not registers in arguments"
+                assert is_register(command_arguments[1]), "Not registers in arguments"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0][1:-1], command_arguments[1]])
 
             if cur_opcode == Opcode.IN:
                 assert len(command_arguments) == 2, "IN must have 2 arguments"
-                assert is_register(command_arguments[0]) and command_arguments[1].isdigit(), "IN arg mismatch"
+                assert is_register(command_arguments[0]), "IN arg mismatch"
+                assert command_arguments[1].isdigit(), "IN arg mismatch"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0], command_arguments[1]])
 
             if cur_opcode == Opcode.OUT:
                 assert len(command_arguments) == 2, "OUT must have 2 arguments"
-                assert is_register(command_arguments[1]) and command_arguments[0].isdigit(), "OUT arg mismatch"
+                assert is_register(command_arguments[1]), "OUT arg mismatch"
+                assert command_arguments[0].isdigit(), "OUT arg mismatch"
                 current_instruction = Instruction(cur_opcode, [command_arguments[0], command_arguments[1]])
 
             assert current_instruction is not None, "Instruction parsing error"
@@ -164,15 +161,14 @@ def perform_translator(source: str) -> dict:
         data_mem, variables = transform_data_into_structure(code[data_start:data_stop])
 
     start, command_mem = transform_text_into_structure(code[text_start:text_stop], data_mem, variables)
-    ans = dict({"data_mem": data_mem, "start": start, "code_mem": command_mem})
-    return ans
+    return dict({"data_mem": data_mem, "start": start, "code_mem": command_mem})
 
 
 def main(args):
     assert len(args) == 2, "Usage: translation.py <source> <output>"
     source = args[0]
 
-    with open(source, "rt", encoding="utf-8") as file:
+    with open(source, encoding="utf-8") as file:
         code = file.read()
 
     result = perform_translator(code)

@@ -1,6 +1,5 @@
-from enum import Enum
-from isa import *
 import json
+from enum import Enum
 
 INT_MIN = -2147483648
 INT_MAX = 2147483647

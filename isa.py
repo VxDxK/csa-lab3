@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from enum import Enum
 
 
@@ -25,12 +26,8 @@ class Opcode(str, Enum):
         return self.name
 
 
-class AddressMode(Enum):
-    pass
-
-
 class Instruction:
-    def __init__(self, opcode: Opcode, args: list[str] = None):
+    def __init__(self, opcode: Opcode, args: list[str] | None = None):
         if args is None:
             args = []
         self.opcode: Opcode = opcode

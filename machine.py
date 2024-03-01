@@ -3,28 +3,26 @@
 from __future__ import annotations
 
 import json
-
-import self
-
-from isa import *
-from util import *
 import logging
 import sys
 from ctypes import c_int32
+
+from isa import Instruction, Opcode
+from util import INT_MAX, INT_MIN, IP, SP, Register
+
+OPCODES_IMPLS = {
+    Opcode.ADD: lambda a, b: a + b,
+    Opcode.INC: lambda a, b: a + 1,
+    Opcode.DEC: lambda a, b: a - 1,
+    Opcode.DIV: lambda a, b: a // b,
+    Opcode.MOD: lambda a, b: a % b,
+}
 
 
 class ALU:
     negative: bool = False
     zero: bool = False
     overflow: bool = False
-
-    OPCODES_IMPLS = {
-        Opcode.ADD: lambda a, b: a + b,
-        Opcode.INC: lambda a, b: a + 1,
-        Opcode.DEC: lambda a, b: a - 1,
-        Opcode.DIV: lambda a, b: a // b,
-        Opcode.MOD: lambda a, b: a % b,
-    }
 
     def process(self, op: Opcode, left: int, right: int) -> int:
         ans: int = 0
@@ -38,8 +36,8 @@ class ALU:
             self.negative = calc < 0
             self.zero = calc == 0
             ans = left
-        elif op in self.OPCODES_IMPLS:
-            ans = self.OPCODES_IMPLS[op](left, right)
+        elif op in OPCODES_IMPLS:
+            ans = OPCODES_IMPLS[op](left, right)
             if ans > INT_MAX or ans < INT_MIN:
                 ans = c_int32(ans).value
                 self.overflow = True
@@ -76,10 +74,10 @@ MEM_SIZE = 2**9
 
 class DataPath:
     alu: ALU = ALU()
-    data_mem: list[int] = [0 for _ in range(MEM_SIZE)]
-    code_mem: list[Instruction] = [Instruction(Opcode.NOP) for _ in range(MEM_SIZE)]
 
     def __init__(self, start: int, code: dict[int, Instruction], data: dict[int, int]):
+        self.data_mem: list[int] = [0 for _ in range(MEM_SIZE)]
+        self.code_mem: list[Instruction] = [Instruction(Opcode.NOP) for _ in range(MEM_SIZE)]
         self.regs: dict[Register, int] = dict()
         for reg in range(0, 15):
             self.regs[Register(f"r{reg}")] = 0
@@ -96,7 +94,7 @@ class DataPath:
             raise ValueError("Cannot latch register R0")
         self.regs[reg] = value
 
-    def getR0(self):
+    def get_r0(self):
         return self.load_reg(Register.R0)
 
     def load_reg(self, reg: Register) -> int:
@@ -141,7 +139,8 @@ class ControlUnit:
             self.dataPath.latch_reg(IP, addr)
             self.tick()
             return True
-        elif opcode is Opcode.JE:
+
+        if opcode is Opcode.JE:
             jmp_flag = self.dataPath.get_zero_flag() == 1
         elif opcode is Opcode.JG:
             jmp_flag = self.dataPath.negative() == 0
@@ -167,7 +166,7 @@ class ControlUnit:
 
     def un_arithmetic(self, instr: Instruction):
         res: int = self.dataPath.calc(
-            instr.opcode, self.dataPath.load_reg(Register(instr.args[0])), self.dataPath.getR0()
+            instr.opcode, self.dataPath.load_reg(Register(instr.args[0])), self.dataPath.get_r0()
         )
         self.dataPath.latch_reg(Register(instr.args[0]), res)
         self.tick()
@@ -177,7 +176,7 @@ class ControlUnit:
             reg_from_data: int = int(instr.args[1])
         else:
             reg_from: Register = Register(instr.args[1])
-            reg_from_data: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[reg_from], self.dataPath.getR0())
+            reg_from_data: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[reg_from], self.dataPath.get_r0())
         self.tick()
         reg_to: Register = Register(instr.args[0])
         self.dataPath.latch_reg(reg_to, reg_from_data)
@@ -186,7 +185,7 @@ class ControlUnit:
     def ld(self, instr: Instruction):
         reg_to: Register = Register(instr.args[0])
         addr_reg: Register = Register(instr.args[1])
-        addr_to_read: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[addr_reg], self.dataPath.getR0())
+        addr_to_read: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[addr_reg], self.dataPath.get_r0())
         self.tick()
         data: int = self.dataPath.data_mem[addr_to_read]
         self.tick()
@@ -195,7 +194,7 @@ class ControlUnit:
 
     def st(self, instr: Instruction):
         data_reg: Register = Register(instr.args[1])
-        data: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[data_reg], self.dataPath.getR0())
+        data: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[data_reg], self.dataPath.get_r0())
         self.tick()
         addr_reg: Register = Register(instr.args[0])
         addr: int = self.dataPath.calc(Opcode.ADD, 0, self.dataPath.regs[addr_reg])
@@ -207,7 +206,7 @@ class ControlUnit:
         io = self.ports[int(instr.args[0])]
         self.tick()
         reg_from = Register(instr.args[1])
-        value: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[reg_from], self.dataPath.getR0())
+        value: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[reg_from], self.dataPath.get_r0())
         self.tick()
         io.write_byte(value)
         self.tick()
@@ -276,7 +275,7 @@ def simulation(start: int, code: dict[int, Instruction], data: dict[int, int], i
             instr_counter += 1
             logging.debug("%s", cu)
     except EOFError:
-        logging.error("Input buffer is empty!")
+        logging.exception("Input buffer is empty!")
     except StopIteration:
         pass
 
@@ -286,7 +285,7 @@ def simulation(start: int, code: dict[int, Instruction], data: dict[int, int], i
 
 
 def main(code_file, input_file=None):
-    code_dict = json.load(open(code_file, "r", encoding="utf-8"))
+    code_dict = json.load(open(code_file, encoding="utf-8"))
 
     data_mem: dict[int, int] = code_dict["data_mem"]
     start: int = code_dict["start"]
@@ -298,7 +297,7 @@ def main(code_file, input_file=None):
     if input_file is None:
         input_token = [0]
     else:
-        with open(input_file, "r", encoding="utf-8") as file:
+        with open(input_file, encoding="utf-8") as file:
             input_token = [ord(i) for i in file.read()]
             input_token.append(0)
 
