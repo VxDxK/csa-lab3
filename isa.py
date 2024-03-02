@@ -10,7 +10,7 @@ class Opcode(str, Enum):
     ST = "st"
     INC = "inc"
     DEC = "dec"
-    NEGR = "neg"
+    NEGR = "negr"
     ADD = "add"
     DIV = "div"
     MOD = "mod"
