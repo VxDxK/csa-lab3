@@ -69,15 +69,17 @@ class IO:
         self.output += chr(value)
 
 
-MEM_SIZE = 2**9
+MEM_SIZE = 2**10
 
 
 class DataPath:
     alu: ALU = ALU()
 
-    def __init__(self, start: int, code: dict[int, Instruction], data: dict[int, int]):
+    def __init__(self, start: int, code: dict[int, Instruction], data: dict[int, int], ports: [int, IO]):
         self.data_mem: list[int] = [0 for _ in range(MEM_SIZE)]
         self.code_mem: list[Instruction] = [Instruction(Opcode.NOP) for _ in range(MEM_SIZE)]
+        self.ports: dict[int, IO] = ports
+        self.active_port: int = 0
         self.regs: dict[Register, int] = dict()
         for reg in range(0, 15):
             self.regs[Register(f"r{reg}")] = 0
@@ -93,6 +95,21 @@ class DataPath:
         if reg == Register.R0:
             raise ValueError("Cannot latch register R0")
         self.regs[reg] = value
+
+    def choose_port(self, port: int):
+        if port not in self.ports:
+            raise ValueError(f"No port {port}")
+        self.active_port = port
+
+    def read_port(self, reg: Register):
+        if reg == Register.R0:
+            raise ValueError("Cannot write to register R0")
+        io = self.ports[self.active_port]
+        self.regs[reg] = io.read_byte()
+
+    def write_port(self, reg: Register):
+        io = self.ports[self.active_port]
+        io.write_byte(self.regs[reg])
 
     def get_r0(self):
         return self.load_reg(Register.R0)
@@ -113,9 +130,8 @@ class DataPath:
 class ControlUnit:
     tick_counter = 0
 
-    def __init__(self, dp: DataPath, ports: [int, IO]):
+    def __init__(self, dp: DataPath):
         self.dataPath = dp
-        self.ports = ports
 
     def tick(self):
         self.tick_counter += 1
@@ -203,23 +219,19 @@ class ControlUnit:
         self.tick()
 
     def out(self, instr: Instruction):
-        io = self.ports[int(instr.args[0])]
+        self.dataPath.choose_port(int(instr.args[0]))
         self.tick()
         reg_from = Register(instr.args[1])
-        value: int = self.dataPath.calc(Opcode.ADD, self.dataPath.regs[reg_from], self.dataPath.get_r0())
-        self.tick()
-        io.write_byte(value)
+        self.dataPath.write_port(reg_from)
         self.tick()
         pass
 
     def inb(self, instr: Instruction):
-        io = self.ports[int(instr.args[1])]
+        self.dataPath.choose_port(int(instr.args[1]))
+        self.tick()
         reg_to = Register(instr.args[0])
+        self.dataPath.read_port(reg_to)
         self.tick()
-        self.tick()
-        value = io.read_byte()
-        self.tick()
-        self.dataPath.latch_reg(reg_to, value)
         pass
 
     def decode_and_execute_instruction(self):
@@ -253,19 +265,19 @@ class ControlUnit:
     def __repr__(self):
         regs_str = ""
         for reg, value in self.dataPath.regs.items():
-            regs_str += f"({reg} = {value}) "
-        state_repr = f"TICK {self.tick_counter} REGS: {regs_str.strip()}"
+            regs_str += f"({reg} = {value})"
+        state_repr = f"TICK {self.tick_counter} REGS: [{regs_str.strip()}]"
         instr = self.dataPath.code_mem[self.dataPath.regs[IP]]
         opcode = instr.opcode
         instr_repr = str(opcode)
         instr_repr += f" {instr.args}"
-        return f"{state_repr} \t{instr_repr}"
+        return f"{state_repr} {instr_repr}"
 
 
 def simulation(start: int, code: dict[int, Instruction], data: dict[int, int], input_tokens: list[int], limit: int):
-    ports = {0: IO(input_tokens), 1: IO([]), 2: IO([])}
-    dp = DataPath(start, code, data)
-    cu = ControlUnit(dp, ports)
+    ports = {0: IO(input_tokens), 1: IO([])}
+    dp = DataPath(start, code, data, ports)
+    cu = ControlUnit(dp)
 
     logging.debug("%s", cu)
     instr_counter = 0
@@ -284,28 +296,19 @@ def simulation(start: int, code: dict[int, Instruction], data: dict[int, int], i
             print(f"Port {port}: '{io.output}'")
 
 
-def main(code_file, input_file=None):
-    code_dict = json.load(open(code_file, encoding="utf-8"))
-
-    data_mem: dict[int, int] = code_dict["data_mem"]
-    start: int = code_dict["start"]
-    tmp_code_mem: dict[str, str] = code_dict["code_mem"]
+def computer(code_dictionary, tokens: list[int]):
+    data_mem: dict[int, int] = code_dictionary["data_mem"]
+    start: int = code_dictionary["start"]
+    tmp_code_mem: dict[str, str] = code_dictionary["code_mem"]
     code_mem: dict[int, Instruction] = {}
     for k, v in tmp_code_mem.items():
         code_mem[int(k)] = Instruction(Opcode(v["opcode"]), v["args"])
-
-    if input_file is None:
-        input_token = [0]
-    else:
-        with open(input_file, encoding="utf-8") as file:
-            input_token = [ord(i) for i in file.read()]
-            input_token.append(0)
 
     simulation(
         start,
         code_mem,
         data_mem,
-        input_token,
+        tokens,
         100000,
     )
 
@@ -313,8 +316,13 @@ def main(code_file, input_file=None):
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.DEBUG)
     if len(sys.argv) == 2:
-        main(sys.argv[1])
+        code_dict = json.load(open(sys.argv[1], encoding="utf-8"))
+        computer(code_dict, [0])
     elif len(sys.argv) == 3:
-        main(sys.argv[1], sys.argv[2])
+        code_dict = json.load(open(sys.argv[1], encoding="utf-8"))
+        with open(sys.argv[2], encoding="utf-8") as file:
+            input_token = [ord(i) for i in file.read()]
+            input_token.append(0)
+        computer(code_dict, input_token)
     else:
         raise Exception("Wrong arguments: machine.py <code_file> <optional_input_file>")

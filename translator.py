@@ -138,7 +138,7 @@ def transform_text_into_structure(
     return start_address, command_mem
 
 
-def perform_translator(source: str) -> dict:
+def perform_translator(source: str, target: str):
     code = preprocessing(source)
     data_mem: dict[int, int] = {}
     variables = {}
@@ -161,7 +161,11 @@ def perform_translator(source: str) -> dict:
         data_mem, variables = transform_data_into_structure(code[data_start:data_stop])
 
     start, command_mem = transform_text_into_structure(code[text_start:text_stop], data_mem, variables)
-    return dict({"data_mem": data_mem, "start": start, "code_mem": command_mem})
+    ans = dict({"data_mem": data_mem, "start": start, "code_mem": command_mem})
+    with open(target, "w", encoding="utf-8") as out_file:
+        json.dump(ans, out_file, indent=4, default=lambda o: o.__dict__)
+
+    return ans
 
 
 def main(args):
@@ -171,9 +175,7 @@ def main(args):
     with open(source, encoding="utf-8") as file:
         code = file.read()
 
-    result = perform_translator(code)
-    with open(args[1], "w", encoding="utf-8") as out_file:
-        json.dump(result, out_file, indent=4, default=lambda o: o.__dict__)
+    result = perform_translator(code, args[1])
 
     loc = len(code.split("\n"))
     print(f"source LoC: {loc} instr: {len(result['code_mem'])}")
