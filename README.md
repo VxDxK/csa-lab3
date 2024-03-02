@@ -2,6 +2,7 @@
 
 - Пономарев Вадим Васильевич P33311
 - `lisp -> asm | risc | harv | hw | instr | struct | stream | port | cstr | prob1 | pipeline`
+- С упрощением
 
 ## Язык программирования
 
@@ -17,7 +18,7 @@ program ::= <section_text> <section_data> | <section_data> <section_text> | <sec
 <name> ::= [a-zA-Z]+
 <label> ::= "."<name> ":"
 <variable> ::= <name> ":"
-<reg=> ::= "r1" | "r2" | "r3" | "r4" | "r5"
+<reg=> ::= "r1" | "r2" | "r3" | "r4" | "r5" | "r6" | "r7" | "r8 | "r9" | "r10" | "r11" | "r12" | "r14" | "r15""
 <string> ::= '"' <character>, { <character> | <underscore> | " " } '"'
 <char> ::= "'" ( <character> | "\0" | "\n" ) "'"
 <int> ::= <digit>, { <digit> }
