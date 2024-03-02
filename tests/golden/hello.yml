@@ -1,0 +1,182 @@
+source_code: |-
+  section .data
+    hello_str: "hello, world!"
+  section .text
+  .start:
+    MOV r2, 0
+    MOV r1, hello_str
+  .reload:
+    LD r3, [r1]
+    CMP r2, r3
+    JE .exit
+    OUT 1, r3
+    INC r1
+    JMP .reload
+  .exit:
+    HLT
+
+stdin: |
+
+stdout: |-
+  =========================
+  Port 1: 'hello world!'
+
+out_code_readable: |-
+  {
+      "data_mem": {
+          "0": 104,
+          "1": 101,
+          "2": 108,
+          "3": 108,
+          "4": 111,
+          "5": 32,
+          "6": 119,
+          "7": 111,
+          "8": 114,
+          "9": 108,
+          "10": 100,
+          "11": 33,
+          "12": 0
+      },
+      "start": 0,
+      "code_mem": {
+          "0": {
+              "opcode": "mov",
+              "args": [
+                  "r2",
+                  "0"
+              ]
+          },
+          "1": {
+              "opcode": "mov",
+              "args": [
+                  "r1",
+                  "0"
+              ]
+          },
+          "2": {
+              "opcode": "ld",
+              "args": [
+                  "r3",
+                  "r1"
+              ]
+          },
+          "3": {
+              "opcode": "cmp",
+              "args": [
+                  "r2",
+                  "r3"
+              ]
+          },
+          "4": {
+              "opcode": "je",
+              "args": [
+                  "8"
+              ]
+          },
+          "5": {
+              "opcode": "out",
+              "args": [
+                  "1",
+                  "r3"
+              ]
+          },
+          "6": {
+              "opcode": "inc",
+              "args": [
+                  "r1"
+              ]
+          },
+          "7": {
+              "opcode": "jmp",
+              "args": [
+                  "2"
+              ]
+          },
+          "8": {
+              "opcode": "hlt",
+              "args": []
+          }
+      }
+  }
+
+
+out_log: |-
+  DEBUG   machine:simulation    TICK 0 REGS: [(R0 = 0)(R1 = 0)(R2 = 0)(R3 = 0)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 0)(R14 = 0)(R15 = 1023)] MOV ['r2', '0']
+  DEBUG   machine:simulation    TICK 4 REGS: [(R0 = 0)(R1 = 0)(R2 = 0)(R3 = 0)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 1)(R14 = 0)(R15 = 1023)] MOV ['r1', '0']
+  DEBUG   machine:simulation    TICK 8 REGS: [(R0 = 0)(R1 = 0)(R2 = 0)(R3 = 0)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 13 REGS: [(R0 = 0)(R1 = 0)(R2 = 0)(R3 = 104)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 16 REGS: [(R0 = 0)(R1 = 0)(R2 = 0)(R3 = 104)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 18 REGS: [(R0 = 0)(R1 = 0)(R2 = 0)(R3 = 104)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 22 REGS: [(R0 = 0)(R1 = 0)(R2 = 0)(R3 = 104)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 25 REGS: [(R0 = 0)(R1 = 1)(R2 = 0)(R3 = 104)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 27 REGS: [(R0 = 0)(R1 = 1)(R2 = 0)(R3 = 104)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 32 REGS: [(R0 = 0)(R1 = 1)(R2 = 0)(R3 = 101)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 35 REGS: [(R0 = 0)(R1 = 1)(R2 = 0)(R3 = 101)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 37 REGS: [(R0 = 0)(R1 = 1)(R2 = 0)(R3 = 101)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 41 REGS: [(R0 = 0)(R1 = 1)(R2 = 0)(R3 = 101)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 44 REGS: [(R0 = 0)(R1 = 2)(R2 = 0)(R3 = 101)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 46 REGS: [(R0 = 0)(R1 = 2)(R2 = 0)(R3 = 101)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 51 REGS: [(R0 = 0)(R1 = 2)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 54 REGS: [(R0 = 0)(R1 = 2)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 56 REGS: [(R0 = 0)(R1 = 2)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 60 REGS: [(R0 = 0)(R1 = 2)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 63 REGS: [(R0 = 0)(R1 = 3)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 65 REGS: [(R0 = 0)(R1 = 3)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 70 REGS: [(R0 = 0)(R1 = 3)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 73 REGS: [(R0 = 0)(R1 = 3)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 75 REGS: [(R0 = 0)(R1 = 3)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 79 REGS: [(R0 = 0)(R1 = 3)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 82 REGS: [(R0 = 0)(R1 = 4)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 84 REGS: [(R0 = 0)(R1 = 4)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 89 REGS: [(R0 = 0)(R1 = 4)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 92 REGS: [(R0 = 0)(R1 = 4)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 94 REGS: [(R0 = 0)(R1 = 4)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 98 REGS: [(R0 = 0)(R1 = 4)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 101 REGS: [(R0 = 0)(R1 = 5)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 103 REGS: [(R0 = 0)(R1 = 5)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 108 REGS: [(R0 = 0)(R1 = 5)(R2 = 0)(R3 = 32)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 111 REGS: [(R0 = 0)(R1 = 5)(R2 = 0)(R3 = 32)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 113 REGS: [(R0 = 0)(R1 = 5)(R2 = 0)(R3 = 32)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 117 REGS: [(R0 = 0)(R1 = 5)(R2 = 0)(R3 = 32)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 120 REGS: [(R0 = 0)(R1 = 6)(R2 = 0)(R3 = 32)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 122 REGS: [(R0 = 0)(R1 = 6)(R2 = 0)(R3 = 32)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 127 REGS: [(R0 = 0)(R1 = 6)(R2 = 0)(R3 = 119)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 130 REGS: [(R0 = 0)(R1 = 6)(R2 = 0)(R3 = 119)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 132 REGS: [(R0 = 0)(R1 = 6)(R2 = 0)(R3 = 119)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 136 REGS: [(R0 = 0)(R1 = 6)(R2 = 0)(R3 = 119)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 139 REGS: [(R0 = 0)(R1 = 7)(R2 = 0)(R3 = 119)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 141 REGS: [(R0 = 0)(R1 = 7)(R2 = 0)(R3 = 119)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 146 REGS: [(R0 = 0)(R1 = 7)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 149 REGS: [(R0 = 0)(R1 = 7)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 151 REGS: [(R0 = 0)(R1 = 7)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 155 REGS: [(R0 = 0)(R1 = 7)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 158 REGS: [(R0 = 0)(R1 = 8)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 160 REGS: [(R0 = 0)(R1 = 8)(R2 = 0)(R3 = 111)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 165 REGS: [(R0 = 0)(R1 = 8)(R2 = 0)(R3 = 114)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 168 REGS: [(R0 = 0)(R1 = 8)(R2 = 0)(R3 = 114)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 170 REGS: [(R0 = 0)(R1 = 8)(R2 = 0)(R3 = 114)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 174 REGS: [(R0 = 0)(R1 = 8)(R2 = 0)(R3 = 114)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 177 REGS: [(R0 = 0)(R1 = 9)(R2 = 0)(R3 = 114)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 179 REGS: [(R0 = 0)(R1 = 9)(R2 = 0)(R3 = 114)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 184 REGS: [(R0 = 0)(R1 = 9)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 187 REGS: [(R0 = 0)(R1 = 9)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 189 REGS: [(R0 = 0)(R1 = 9)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 193 REGS: [(R0 = 0)(R1 = 9)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 196 REGS: [(R0 = 0)(R1 = 10)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 198 REGS: [(R0 = 0)(R1 = 10)(R2 = 0)(R3 = 108)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 203 REGS: [(R0 = 0)(R1 = 10)(R2 = 0)(R3 = 100)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 206 REGS: [(R0 = 0)(R1 = 10)(R2 = 0)(R3 = 100)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 208 REGS: [(R0 = 0)(R1 = 10)(R2 = 0)(R3 = 100)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 212 REGS: [(R0 = 0)(R1 = 10)(R2 = 0)(R3 = 100)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 215 REGS: [(R0 = 0)(R1 = 11)(R2 = 0)(R3 = 100)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 217 REGS: [(R0 = 0)(R1 = 11)(R2 = 0)(R3 = 100)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 222 REGS: [(R0 = 0)(R1 = 11)(R2 = 0)(R3 = 33)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 225 REGS: [(R0 = 0)(R1 = 11)(R2 = 0)(R3 = 33)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 227 REGS: [(R0 = 0)(R1 = 11)(R2 = 0)(R3 = 33)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 5)(R14 = 0)(R15 = 1023)] OUT ['1', 'r3']
+  DEBUG   machine:simulation    TICK 231 REGS: [(R0 = 0)(R1 = 11)(R2 = 0)(R3 = 33)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 6)(R14 = 0)(R15 = 1023)] INC ['r1']
+  DEBUG   machine:simulation    TICK 234 REGS: [(R0 = 0)(R1 = 12)(R2 = 0)(R3 = 33)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 7)(R14 = 0)(R15 = 1023)] JUMP ['2']
+  DEBUG   machine:simulation    TICK 236 REGS: [(R0 = 0)(R1 = 12)(R2 = 0)(R3 = 33)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 2)(R14 = 0)(R15 = 1023)] LD ['r3', 'r1']
+  DEBUG   machine:simulation    TICK 241 REGS: [(R0 = 0)(R1 = 12)(R2 = 0)(R3 = 0)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 3)(R14 = 0)(R15 = 1023)] CMP ['r2', 'r3']
+  DEBUG   machine:simulation    TICK 244 REGS: [(R0 = 0)(R1 = 12)(R2 = 0)(R3 = 0)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 4)(R14 = 0)(R15 = 1023)] JE ['8']
+  DEBUG   machine:simulation    TICK 246 REGS: [(R0 = 0)(R1 = 12)(R2 = 0)(R3 = 0)(R4 = 0)(R5 = 0)(R6 = 0)(R7 = 0)(R8 = 0)(R9 = 0)(R10 = 0)(R11 = 0)(R12 = 0)(R13 = 8)(R14 = 0)(R15 = 1023)] HLT []
