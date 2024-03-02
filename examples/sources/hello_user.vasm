@@ -1,0 +1,42 @@
+section .data
+    question_str: "What is your name?\n"
+    hello_str: "Hello "
+section .text
+.start:
+    MOV r2, 0
+    MOV r1, question_str
+    MOV r10, r15
+.reload:
+    LD r3, [r1]
+    CMP r2, r3
+    JE .read_name
+    OUT 1, r3
+    INC r1
+    JMP .reload
+.read_name:
+    IN r4, 0
+    CMP r4, r2
+    JE .print_answer
+    ST [r15], r4
+    DEC r15
+    JMP .read_name
+.print_answer:
+    MOV r1, hello_str
+.reload1:
+    LD r3, [r1]
+    CMP r2, r3
+    JE .print_name
+    OUT 1, r3
+    INC r1
+    JMP .reload1
+.print_name:
+    MOV r15, r10
+.loop_print_name:
+    LD r3, [r15]
+    CMP r3, r2
+    JE .exit
+    DEC r15
+    OUT 1, r3
+    JMP .loop_print_name
+.exit:
+    HLT
